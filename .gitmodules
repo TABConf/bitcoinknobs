@@ -1,0 +1,4 @@
+[submodule "contrib/gui-qml/gui-qml"]
+	path = contrib/gui-qml/gui-qml
+	url = https://github.com/bitcoin-core/gui-qml.git
+	branch = qt6
