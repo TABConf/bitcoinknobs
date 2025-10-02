@@ -691,6 +691,7 @@ UniValue MempoolInfoToJSON(const CTxMemPool& pool)
     ret.pushKV("fullrbf", true);
     ret.pushKV("permitbaremultisig", pool.m_opts.permit_bare_multisig);
     ret.pushKV("maxdatacarriersize", pool.m_opts.max_datacarrier_bytes.value_or(0));
+    ret.pushKV("mindatacarriersize", pool.m_opts.min_datacarrier_bytes.value_or(0));
     return ret;
 }
 
@@ -715,6 +716,7 @@ static RPCHelpMan getmempoolinfo()
                 {RPCResult::Type::BOOL, "fullrbf", "True if the mempool accepts RBF without replaceability signaling inspection (DEPRECATED)"},
                 {RPCResult::Type::BOOL, "permitbaremultisig", "True if the mempool accepts transactions with bare multisig outputs"},
                 {RPCResult::Type::NUM, "maxdatacarriersize", "Maximum number of bytes that can be used by OP_RETURN outputs in the mempool"},
+                {RPCResult::Type::NUM, "mindatacarriersize", "Minimum number of bytes that must be used by OP_RETURN outputs in the mempool"},
             }},
         RPCExamples{
             HelpExampleCli("getmempoolinfo", "")
