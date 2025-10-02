@@ -47,7 +47,6 @@ class DataCarrierTest(BitcoinTestFramework):
             self.wallet.sendrawtransaction(from_node=node, tx_hex=tx_hex)
             assert tx.txid_hex in node.getrawmempool(True), f'{tx_hex} not in mempool'
         else:
-            # Error message could be either "datacarrier" or "datacarrier-too-small"
             assert_raises_rpc_error(-26, "datacarrier", self.wallet.sendrawtransaction, from_node=node, tx_hex=tx_hex)
 
     def run_test(self):
