@@ -26,12 +26,13 @@ CUSTOM_DATACARRIER_ARG = 83
 
 class DataCarrierTest(BitcoinTestFramework):
     def set_test_params(self):
-        self.num_nodes = 4
+        self.num_nodes = 5
         self.extra_args = [
             [], # default is uncapped
             ["-datacarrier=0"], # no relay of datacarrier
             ["-datacarrier=1", f"-datacarriersize={CUSTOM_DATACARRIER_ARG}"],
             ["-datacarrier=1", "-datacarriersize=2"],
+            ["-datacarrier=1", "-mindatacarriersize=10"], # minimum size of 10 bytes
         ]
 
     def test_null_data_transaction(self, node: TestNode, data, success: bool) -> None:
@@ -58,6 +59,7 @@ class DataCarrierTest(BitcoinTestFramework):
         assert_equal(self.nodes[1].getmempoolinfo()["maxdatacarriersize"], 0)
         assert_equal(self.nodes[2].getmempoolinfo()["maxdatacarriersize"], CUSTOM_DATACARRIER_ARG)
         assert_equal(self.nodes[3].getmempoolinfo()["maxdatacarriersize"], 2)
+        assert_equal(self.nodes[4].getmempoolinfo()["mindatacarriersize"], 10)
 
         # By default, any size is allowed.
 
@@ -100,9 +102,32 @@ class DataCarrierTest(BitcoinTestFramework):
         self.test_null_data_transaction(node=self.nodes[2], data=one_byte, success=True)
         self.test_null_data_transaction(node=self.nodes[3], data=one_byte, success=False)
 
+        # Test -mindatacarriersize
+        # OP_RETURN + push opcode + data = total script size
+        # For 10 byte minimum: we need 7 bytes of data (1 OP_RETURN + 1 push opcode + 7 data = 9 bytes)
+        # Actually for 10 bytes: we need 8 bytes of data (1 OP_RETURN + 1 push opcode + 8 data = 10 bytes)
+        nine_byte_script = randbytes(7)  # Will create 9 byte script (below minimum)
+        ten_byte_script = randbytes(8)   # Will create 10 byte script (exactly at minimum)
+        eleven_byte_script = randbytes(9) # Will create 11 byte script (above minimum)
+
+        self.log.info("Testing minimum datacarrier size with no OP_RETURN (should fail).")
+        tx_no_opreturn = self.wallet.create_self_transfer(fee_rate=0)["tx"]
+        tx_no_opreturn.vout[0].nValue -= tx_no_opreturn.get_vsize()
+        assert_raises_rpc_error(-26, "datacarrier-too-small", self.wallet.sendrawtransaction, from_node=self.nodes[4], tx_hex=tx_no_opreturn.serialize().hex())
+
+        self.log.info("Testing minimum datacarrier size below minimum (9 bytes, minimum is 10).")
+        self.test_null_data_transaction(node=self.nodes[4], data=nine_byte_script, success=False)
+
+        self.log.info("Testing minimum datacarrier size exactly at minimum (10 bytes).")
+        self.test_null_data_transaction(node=self.nodes[4], data=ten_byte_script, success=True)
+
+        self.log.info("Testing minimum datacarrier size above minimum (11 bytes).")
+        self.test_null_data_transaction(node=self.nodes[4], data=eleven_byte_script, success=True)
+
         # Clean shutdown boilerplate due to deprecation
         self.expected_stderr = [
             "",  # node 0 has no deprecated options
+            "Warning: Options '-datacarrier' or '-datacarriersize' are set but are marked as deprecated and are expected to be removed in a future version.",
             "Warning: Options '-datacarrier' or '-datacarriersize' are set but are marked as deprecated and are expected to be removed in a future version.",
             "Warning: Options '-datacarrier' or '-datacarriersize' are set but are marked as deprecated and are expected to be removed in a future version.",
             "Warning: Options '-datacarrier' or '-datacarriersize' are set but are marked as deprecated and are expected to be removed in a future version.",

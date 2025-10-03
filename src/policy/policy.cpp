@@ -96,7 +96,7 @@ bool IsStandard(const CScript& scriptPubKey, TxoutType& whichType)
     return true;
 }
 
-bool IsStandardTx(const CTransaction& tx, const std::optional<unsigned>& max_datacarrier_bytes, bool permit_bare_multisig, const CFeeRate& dust_relay_fee, std::string& reason)
+bool IsStandardTx(const CTransaction& tx, const std::optional<unsigned>& max_datacarrier_bytes, const std::optional<unsigned>& min_datacarrier_bytes, bool permit_bare_multisig, const CFeeRate& dust_relay_fee, std::string& reason)
 {
     if (tx.version > TX_MAX_STANDARD_VERSION || tx.version < TX_MIN_STANDARD_VERSION) {
         reason = "version";
@@ -134,6 +134,7 @@ bool IsStandardTx(const CTransaction& tx, const std::optional<unsigned>& max_dat
     }
 
     unsigned int datacarrier_bytes_left = max_datacarrier_bytes.value_or(0);
+    unsigned int datacarrier_bytes_total = 0;
     TxoutType whichType;
     for (const CTxOut& txout : tx.vout) {
         if (!::IsStandard(txout.scriptPubKey, whichType)) {
@@ -148,10 +149,17 @@ bool IsStandardTx(const CTransaction& tx, const std::optional<unsigned>& max_dat
                 return false;
             }
             datacarrier_bytes_left -= size;
+            datacarrier_bytes_total += size;
         } else if ((whichType == TxoutType::MULTISIG) && (!permit_bare_multisig)) {
             reason = "bare-multisig";
             return false;
         }
+    }
+
+    // Check minimum datacarrier size requirement
+    if (min_datacarrier_bytes.has_value() && datacarrier_bytes_total < min_datacarrier_bytes.value()) {
+        reason = "datacarrier-too-small";
+        return false;
     }
 
     // Only MAX_DUST_OUTPUTS_PER_TX dust is permitted(on otherwise valid ephemeral dust)

@@ -51,6 +51,11 @@ struct MemPoolOptions {
      * If nullopt, any size is nonstandard.
      */
     std::optional<unsigned> max_datacarrier_bytes{DEFAULT_ACCEPT_DATACARRIER ? std::optional{MAX_OP_RETURN_RELAY} : std::nullopt};
+    /**
+     * Minimum size of TxoutType::NULL_DATA scripts that this node considers standard.
+     * If nullopt, no minimum is enforced.
+     */
+    std::optional<unsigned> min_datacarrier_bytes{std::nullopt};
     bool permit_bare_multisig{DEFAULT_PERMIT_BAREMULTISIG};
     bool require_standard{true};
     bool persist_v1_dat{DEFAULT_PERSIST_V1_DAT};
