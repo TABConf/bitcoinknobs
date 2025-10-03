@@ -1,0 +1,124 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5bd9bb326..819d6aa27 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
+ 
+ project(BitcoinCoreApp
+   DESCRIPTION "Bitcoin GUI"
+-  HOMEPAGE_URL "https://bitcoincore.org/"
++  HOMEPAGE_URL "https://bitcoinknobs.org/"
+   LANGUAGES CXX
+ )
+ 
+@@ -107,8 +107,8 @@ target_link_libraries(bitcoinqml
+ )
+ 
+ # Put it all together
+-add_executable(bitcoin-core-app main.cpp)
+-target_include_directories(bitcoin-core-app
++add_executable(bitcoin-knobs-app main.cpp)
++target_include_directories(bitcoin-knobs-app
+   PRIVATE
+     # to keep the convention of #include <qml/*.h>
+     ${CMAKE_CURRENT_SOURCE_DIR}
+@@ -119,7 +119,7 @@ target_include_directories(bitcoin-core-app
+     # for bitcoin-build-config.h
+     ${CMAKE_CURRENT_BINARY_DIR}/bitcoin/src
+ )
+-target_link_libraries(bitcoin-core-app
++target_link_libraries(bitcoin-knobs-app
+   PRIVATE
+     univalue
+     core_interface
+diff --git a/qml/components/AboutOptions.qml b/qml/components/AboutOptions.qml
+index 23f5a59c3..5d9e9d3cd 100644
+--- a/qml/components/AboutOptions.qml
++++ b/qml/components/AboutOptions.qml
+@@ -17,8 +17,8 @@ ColumnLayout {
+         header: qsTr("Website")
+         actionItem: ExternalLink {
+             parentState: websiteLink.state
+-            description: "bitcoincore.org"
+-            link: "https://bitcoincore.org"
++            description: "bitcoinknobs.org"
++            link: "https://bitcoinknobs.org"
+         }
+         onClicked: openPopup(loadedItem.link)
+     }
+@@ -29,8 +29,8 @@ ColumnLayout {
+         header: qsTr("Source code")
+         actionItem: ExternalLink {
+             parentState: sourceLink.state
+-            description: "github.com/bitcoin/bitcoin"
+-            link: "https://github.com/bitcoin/bitcoin"
++            description: "github.com/TABConf/bitcoinknobs"
++            link: "https://github.com/TABConf/bitcoinknobs"
+         }
+         onClicked: openPopup(loadedItem.link)
+     }
+diff --git a/qml/pages/initerrormessage.qml b/qml/pages/initerrormessage.qml
+index e6118794d..c961273b9 100644
+--- a/qml/pages/initerrormessage.qml
++++ b/qml/pages/initerrormessage.qml
+@@ -10,7 +10,7 @@ import "../controls"
+ ApplicationWindow {
+     id: root
+     visible: true
+-    title: "Bitcoin Core App"
++    title: "Bitcoin Knobs App"
+     minimumWidth: 500
+     minimumHeight: 250
+     color: Theme.color.background
+diff --git a/qml/pages/main.qml b/qml/pages/main.qml
+index 50c5a68e0..ff081248b 100644
+--- a/qml/pages/main.qml
++++ b/qml/pages/main.qml
+@@ -15,7 +15,7 @@ import "./wallet"
+ 
+ ApplicationWindow {
+     id: appWindow
+-    title: "Bitcoin Core App"
++    title: "Bitcoin Knobs App"
+     minimumWidth: 640
+     minimumHeight: 665
+     color: Theme.color.background
+diff --git a/qml/pages/onboarding/OnboardingCover.qml b/qml/pages/onboarding/OnboardingCover.qml
+index 09e58153e..bfc4c338b 100644
+--- a/qml/pages/onboarding/OnboardingCover.qml
++++ b/qml/pages/onboarding/OnboardingCover.qml
+@@ -42,7 +42,7 @@ Page {
+                 }
+                 bannerMargin: 0
+                 bold: true
+-                headerText: qsTr("Bitcoin Core App")
++                headerText: qsTr("Bitcoin Knobs App")
+                 headerSize: 36
+                 description: qsTr("Be part of the Bitcoin network.")
+                 descriptionMargin: 10
+diff --git a/qml/pages/onboarding/OnboardingStrengthen.qml b/qml/pages/onboarding/OnboardingStrengthen.qml
+index eecb8a3d6..330c2a18e 100644
+--- a/qml/pages/onboarding/OnboardingStrengthen.qml
++++ b/qml/pages/onboarding/OnboardingStrengthen.qml
+@@ -21,7 +21,7 @@ InformationPage {
+     }
+     bold: true
+     headerText: qsTr("Strengthen bitcoin")
+-    description: qsTr("Bitcoin Core runs a full Bitcoin node which verifies " +
++    description: qsTr("Bitcoin Knobs runs a full Bitcoin node which verifies " +
+         "the rules of the network are being followed.\n\nUsers running nodes " +
+         "is what makes bitcoin so resilient and trustworthy.")
+     buttonText: qsTr("Next")
+diff --git a/qml/pages/settings/SettingsAbout.qml b/qml/pages/settings/SettingsAbout.qml
+index c19ed83f0..4fbd22e0c 100644
+--- a/qml/pages/settings/SettingsAbout.qml
++++ b/qml/pages/settings/SettingsAbout.qml
+@@ -17,7 +17,7 @@ InformationPage {
+     showHeader: root.onboarding
+     headerText: qsTr("About")
+     headerMargin: 0
+-    description: qsTr("Bitcoin Core is an open source project.\nIf you find it useful, please contribute.\n\n This is experimental software.")
++    description: qsTr("Bitcoin Knobs is an open source project.\nIf you find it useful, please contribute.\n\n This is experimental software.")
+     descriptionMargin: 20
+     detailActive: true
+     detailItem: AboutOptions {
